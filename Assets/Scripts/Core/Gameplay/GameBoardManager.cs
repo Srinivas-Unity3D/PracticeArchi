@@ -460,6 +460,22 @@ namespace CardGame.Core.Gameplay
                 if (card.IsMatched) matchedPairsCount++;
             }
             matchedPairsCount /= 2;
+
+            Card singleFlippedCard = null;
+            int flippedCount = 0;
+            foreach (var card in allCards)
+            {
+                if (card.IsRevealed && !card.IsMatched)
+                {
+                    flippedCount++;
+                    singleFlippedCard = card;
+                }
+            }
+
+            if (flippedCount == 1)
+            {
+                firstSelectedCard = singleFlippedCard;
+            }
             
             Debug.Log($"Board restored with {allCards.Count} cards and constraint count {constraintCount}");
         }
