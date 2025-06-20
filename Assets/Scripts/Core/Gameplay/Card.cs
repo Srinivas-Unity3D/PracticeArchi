@@ -2,10 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using PrimeTween;
 using System.Collections;
+using UnityEngine.EventSystems;
+using CardGame.Core.Audio;
 
 namespace CardGame.Core.Gameplay
 {
-    public class Card : MonoBehaviour
+    public class Card : MonoBehaviour, IPointerClickHandler
     {
         [Header("Card Components")]
         [SerializeField] private Image cardIconImage;
@@ -31,9 +33,12 @@ namespace CardGame.Core.Gameplay
         public bool IsInteractable => isInteractable;
         public Sprite CardFrontSprite => cardFrontSprite;
         
+        private SoundManager soundManager;
+
         private void Awake()
         {
             InitializeCard();
+            soundManager = FindObjectOfType<SoundManager>();
         }
         
         private void InitializeCard()
@@ -56,9 +61,13 @@ namespace CardGame.Core.Gameplay
         
         public void RevealCard()
         {
-            if (isMatched || isRevealed)
-                return;
-                
+            if (isRevealed || isMatched) return;
+
+            soundManager?.PlayCardFlipSound();
+
+            isRevealed = true;
+            OnCardClicked?.Invoke(this);
+            
             StartCoroutine(AnimateCardReveal());
         }
         
@@ -137,6 +146,11 @@ namespace CardGame.Core.Gameplay
             isInteractable = true;
             transform.rotation = Quaternion.identity;
             SetCardToBack();
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            HandleCardClick();
         }
     }
 } 

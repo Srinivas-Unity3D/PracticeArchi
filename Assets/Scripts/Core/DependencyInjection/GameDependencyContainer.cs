@@ -64,6 +64,7 @@ namespace CardGame.Core.DependencyInjection
             {
                 gameBoardManager.SetScoreSystem(scoreManager);
                 gameBoardManager.SetStatsTracker(statsTracker);
+                gameBoardManager.SetSoundManager(soundManager);
             }
             
             if (scoreManager != null && scoreUI != null)

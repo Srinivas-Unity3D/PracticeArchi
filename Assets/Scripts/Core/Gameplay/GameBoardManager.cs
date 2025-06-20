@@ -1,3 +1,4 @@
+using CardGame.Core.Audio;
 using CardGame.Core.Data;
 using CardGame.Core.Interfaces;
 using System;
@@ -26,6 +27,7 @@ namespace CardGame.Core.Gameplay
         [Header("Dependencies")]
         [SerializeField] private IScoreSystem scoreSystem;
         [SerializeField] private IGameStatsTracker statsTracker;
+        private SoundManager soundManager;
         
         public event Action OnGameStarted;
         public event Action OnGameCompleted;
@@ -263,6 +265,8 @@ namespace CardGame.Core.Gameplay
             firstSelectedCard.MarkAsMatched();
             secondSelectedCard.MarkAsMatched();
             
+            soundManager?.PlayCardMatchSound();
+            
             matchedPairsCount++;
             boardConfig.OnMatchFound?.Invoke(matchedPairsCount);
             
@@ -290,6 +294,8 @@ namespace CardGame.Core.Gameplay
             firstSelectedCard.HideCard();
             secondSelectedCard.HideCard();
             
+            soundManager?.PlayCardMismatchSound();
+            
             if (scoreSystem != null)
             {
                 Vector3 midPoint = (firstSelectedCard.transform.position + secondSelectedCard.transform.position) / 2f;
@@ -307,6 +313,8 @@ namespace CardGame.Core.Gameplay
         private void HandleGameCompletion()
         {
             isGameActive = false;
+            
+            soundManager?.PlayGameOverSound();
             
             if (scoreSystem != null)
             {
@@ -386,6 +394,9 @@ namespace CardGame.Core.Gameplay
             this.statsTracker = statsTracker;
         }
 
-       
+        public void SetSoundManager(SoundManager soundManager)
+        {
+            this.soundManager = soundManager;
+        }
     }
 } 
