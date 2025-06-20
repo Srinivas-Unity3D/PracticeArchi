@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2a650184d3ca3a45b3997d950f718ae, type: 3}
   m_Name: SoundConfig
   m_EditorClassIdentifier: 
-  cardFlip: {fileID: 0}
-  cardMatch: {fileID: 0}
-  cardMismatch: {fileID: 0}
-  gameOver: {fileID: 0}
+  cardFlip: {fileID: 8300000, guid: 1073c60885f6ad241b5cad5ef2756abd, type: 3}
+  cardMatch: {fileID: 8300000, guid: 9cef9d730e843294bb38cad01099a905, type: 3}
+  cardMismatch: {fileID: 8300000, guid: 9cef9d730e843294bb38cad01099a905, type: 3}
+  gameOver: {fileID: 8300000, guid: bcee9b3b5ffca074c8197603532add17, type: 3}
   defaultVolume: 0.7
