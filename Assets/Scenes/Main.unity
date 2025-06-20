@@ -1988,7 +1988,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 101, y: 36.9}
+  m_AnchoredPosition: {x: 101, y: 36.899994}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1166606525
@@ -3310,7 +3310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: -428408208285928629, guid: 2003ca6286c82ce48811be2217203333, type: 3}
   cardContainer: {fileID: 1794967138}
-  boardConfig: {fileID: 11400000, guid: 22b6882853673404a86935d8e3563887, type: 2}
+  boardConfig: {fileID: 11400000, guid: 2b242246814b1f3479a70a871a6887c4, type: 2}
 --- !u!1 &1799673598
 GameObject:
   m_ObjectHideFlags: 0

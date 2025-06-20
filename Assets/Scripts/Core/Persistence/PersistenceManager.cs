@@ -36,6 +36,7 @@ namespace CardGame.Core.Persistence
             var gameData = new GameData
             {
                 cardsOnBoard = gameBoardManager.GetCardsData(),
+                gridConstraintCount = gameBoardManager.GetConstraintCount(),
                 currentScore = scoreManager.CurrentScore,
                 currentCombo = scoreManager.CurrentCombo,
                 gameTime = scoreManager.GameTime,
@@ -65,8 +66,7 @@ namespace CardGame.Core.Persistence
             {
                 GameData loadedData = saveLoadSystem.LoadGame();
                 
-                // Restore the game state
-                gameBoardManager.RestoreBoardState(loadedData.cardsOnBoard);
+                gameBoardManager.RestoreBoardState(loadedData.cardsOnBoard, loadedData.gridConstraintCount);
                 scoreManager.RestoreGameState(loadedData.currentScore, loadedData.currentCombo, loadedData.gameTime);
                 statsTracker.RestoreGameState(loadedData.moves, loadedData.highScore);
                 

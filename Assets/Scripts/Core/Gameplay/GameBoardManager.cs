@@ -350,6 +350,8 @@ namespace CardGame.Core.Gameplay
             matchedPairsCount = 0;
             isGameActive = true;
             
+            if (cardContainer != null) cardContainer.enabled = true;
+            
             if (scoreSystem != null)
             {
                 scoreSystem.RestartGame();
@@ -373,12 +375,9 @@ namespace CardGame.Core.Gameplay
         
         private void ClearGameBoard()
         {
-            foreach (CardGame.Core.Gameplay.Card card in allCards)
+            foreach (Transform child in cardContainer.transform)
             {
-                if (card != null)
-                {
-                    DestroyImmediate(card.gameObject);
-                }
+                Destroy(child.gameObject);
             }
             allCards.Clear();
             cardSpritePairs.Clear();
@@ -401,30 +400,29 @@ namespace CardGame.Core.Gameplay
 
         public List<CardData> GetCardsData()
         {
-            List<CardData> cardsData = new List<CardData>();
-            
-            foreach (Card card in allCards)
+            var data = new List<CardData>();
+            foreach (var card in allCards)
             {
-                if (card != null)
-                {
-                    string spriteName = card.CardFrontSprite != null ? card.CardFrontSprite.name : "";
-                    Vector3 position = card.transform.localPosition;
-                    
-                    CardData cardData = new CardData(
-                        spriteName,
-                        card.IsRevealed,
-                        card.IsMatched,
-                        position
-                    );
-                    
-                    cardsData.Add(cardData);
-                }
+                data.Add(new CardData(card.CardFrontSprite.name, card.IsRevealed, card.IsMatched, card.transform.localPosition));
             }
-            
-            return cardsData;
+            return data;
         }
 
-        public void RestoreBoardState(List<CardData> savedCardsData)
+        public int GetConstraintCount()
+        {
+            if (cardContainer != null)
+            {
+                return cardContainer.constraintCount;
+            }
+            else if (boardConfig != null)
+            {
+                return boardConfig.gridColumn;
+            }
+            
+            return 2;
+        }
+
+        public void RestoreBoardState(List<CardData> savedCardsData, int constraintCount)
         {
             if (savedCardsData == null || savedCardsData.Count == 0)
             {
@@ -432,50 +430,38 @@ namespace CardGame.Core.Gameplay
                 return;
             }
 
-            // Clear current board
             ClearGameBoard();
             
-            // Recreate cards from saved data
-            for (int i = 0; i < savedCardsData.Count; i++)
+            if (cardContainer != null)
             {
-                CardData cardData = savedCardsData[i];
-                
-                // Find the sprite by name
-                Sprite cardSprite = FindSpriteByName(cardData.cardSpriteName);
-                if (cardSprite == null)
-                {
-                    Debug.LogWarning($"Could not find sprite: {cardData.cardSpriteName}");
-                    continue;
-                }
-                
-                // Create the card
-                Card newCard = Instantiate(cardPrefab, cardContainer.transform);
+                cardContainer.enabled = true;
+                cardContainer.constraintCount = constraintCount;
+            }
+            
+            foreach (var cardData in savedCardsData)
+            {
+                var cardSprite = FindSpriteByName(cardData.cardSpriteName);
+                if (cardSprite == null) continue;
+
+                var newCard = Instantiate(cardPrefab, cardContainer.transform);
                 newCard.SetCardFrontSprite(cardSprite);
                 newCard.OnCardClicked += HandleCardSelection;
                 newCard.OnCardRevealed += HandleCardRevealed;
                 newCard.OnCardMatched += HandleCardMatched;
-                
-                // Restore position
-                newCard.transform.localPosition = cardData.GetPosition();
-                
-                // Restore card state using the new method
+
                 newCard.RestoreCardState(cardData.isFlipped, cardData.isMatched);
                 
                 allCards.Add(newCard);
             }
             
-            // Update matched pairs count
             matchedPairsCount = 0;
-            foreach (Card card in allCards)
+            foreach (var card in allCards)
             {
-                if (card.IsMatched)
-                {
-                    matchedPairsCount++;
-                }
+                if (card.IsMatched) matchedPairsCount++;
             }
-            matchedPairsCount /= 2; // Divide by 2 since we count pairs, not individual cards
+            matchedPairsCount /= 2;
             
-            Debug.Log($"Board restored with {allCards.Count} cards, {matchedPairsCount} matched pairs");
+            Debug.Log($"Board restored with {allCards.Count} cards and constraint count {constraintCount}");
         }
 
         private Sprite FindSpriteByName(string spriteName)
@@ -483,7 +469,6 @@ namespace CardGame.Core.Gameplay
             if (string.IsNullOrEmpty(spriteName))
                 return null;
                 
-            // Search in the available card sprites
             foreach (Sprite sprite in boardConfiguration.availableCardSprites)
             {
                 if (sprite != null && sprite.name == spriteName)

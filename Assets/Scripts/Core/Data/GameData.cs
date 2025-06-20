@@ -33,6 +33,7 @@ namespace CardGame.Core.Data
     public class GameData
     {
         public List<CardData> cardsOnBoard;
+        public int gridConstraintCount;
         public int currentScore;
         public int currentCombo;
         public float gameTime;
@@ -44,6 +45,7 @@ namespace CardGame.Core.Data
         {
            
             cardsOnBoard = new List<CardData>();
+            gridConstraintCount = 0; 
             currentScore = 0;
             currentCombo = 0;
             gameTime = 0f;
