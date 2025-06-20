@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rows: 6
   columns: 8
-  gridColumn: 6
+  gridColumn: 8
   matchCheckDelay: 0.3
   cardFlipDuration: 0.5
   mismatchDelay: 1
