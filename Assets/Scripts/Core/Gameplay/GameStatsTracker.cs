@@ -14,9 +14,13 @@ namespace CardGame.Core.Gameplay
 
         public IGameStats CurrentStats => currentStats;
 
-        private void Start()
+        private void Awake()
         {
             currentStats = new GameStats();
+        }
+
+        private void Start()
+        {
             if (scoreSystem == null)
             {
                 scoreSystem = FindObjectOfType<ScoreManager>();
