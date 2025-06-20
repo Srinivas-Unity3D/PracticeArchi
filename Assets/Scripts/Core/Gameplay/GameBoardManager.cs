@@ -316,15 +316,15 @@ namespace CardGame.Core.Gameplay
             
             soundManager?.PlayGameOverSound();
             
-            if (scoreSystem != null)
-            {
-                scoreSystem.EndGame();
-            }
-            
             if (statsTracker != null)
             {
                 statsTracker.CompleteGame();
                 statsTracker.SaveHighScore();
+            }
+            
+            if (scoreSystem != null)
+            {
+                scoreSystem.EndGame();
             }
             
             PrimeTween.Sequence.Create()

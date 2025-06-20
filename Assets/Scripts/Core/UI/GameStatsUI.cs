@@ -144,5 +144,10 @@ namespace CardGame.Core.UI
         {
             this.scoreSystem = scoreSystem;
         }
+
+        public bool IsGameOverPanelActive()
+        {
+            return gameOverPanel != null && gameOverPanel.activeInHierarchy;
+        }
     }
 } 

@@ -38,6 +38,7 @@ namespace CardGame.Core.UI
         private Coroutine comboPulseCoroutine;
         private Coroutine scorePopupCoroutine;
         private Canvas parentCanvas;
+        private GameStatsUI gameStatsUI;
         
         private void Awake()
         {
@@ -53,6 +54,7 @@ namespace CardGame.Core.UI
             }
 
             scoreSystem = FindObjectOfType<ScoreManager>();
+            gameStatsUI = FindObjectOfType<GameStatsUI>();
             
             if (scoreSystem == null)
             {
@@ -199,17 +201,20 @@ namespace CardGame.Core.UI
             comboContainer.transform.localScale = originalComboScale;
         }
         
-        public void ShowScorePopup(int scoreChange, Vector3 worldPosition)
+        public void ShowScorePopup(int score, Vector3 position)
         {
-            Debug.Log($"ShowScorePopup called! Score: {scoreChange}, Position: {worldPosition}");
+            if (gameStatsUI != null && gameStatsUI.IsGameOverPanelActive())
+            {
+                return;
+            }
+
             if (scorePopupText != null && parentCanvas != null)
             {
-                // Convert world position to screen position
-                Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
+                Vector3 screenPosition = Camera.main.WorldToScreenPoint(position);
                 
                 TextMeshProUGUI popup = Instantiate(scorePopupText, parentCanvas.transform);
-                popup.text = (scoreChange >= 0 ? "+" : "") + scoreChange.ToString();
-                popup.color = scoreChange >= 0 ? positiveScoreColor : negativeScoreColor;
+                popup.text = (score >= 0 ? "+" : "") + score.ToString();
+                popup.color = score >= 0 ? positiveScoreColor : negativeScoreColor;
                 
                 if (scorePopupCoroutine != null)
                 {
