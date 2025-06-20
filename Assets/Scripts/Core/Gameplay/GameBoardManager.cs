@@ -398,5 +398,101 @@ namespace CardGame.Core.Gameplay
         {
             this.soundManager = soundManager;
         }
+
+        public List<CardData> GetCardsData()
+        {
+            List<CardData> cardsData = new List<CardData>();
+            
+            foreach (Card card in allCards)
+            {
+                if (card != null)
+                {
+                    string spriteName = card.CardFrontSprite != null ? card.CardFrontSprite.name : "";
+                    Vector3 position = card.transform.localPosition;
+                    
+                    CardData cardData = new CardData(
+                        spriteName,
+                        card.IsRevealed,
+                        card.IsMatched,
+                        position
+                    );
+                    
+                    cardsData.Add(cardData);
+                }
+            }
+            
+            return cardsData;
+        }
+
+        public void RestoreBoardState(List<CardData> savedCardsData)
+        {
+            if (savedCardsData == null || savedCardsData.Count == 0)
+            {
+                Debug.LogWarning("No saved card data to restore!");
+                return;
+            }
+
+            // Clear current board
+            ClearGameBoard();
+            
+            // Recreate cards from saved data
+            for (int i = 0; i < savedCardsData.Count; i++)
+            {
+                CardData cardData = savedCardsData[i];
+                
+                // Find the sprite by name
+                Sprite cardSprite = FindSpriteByName(cardData.cardSpriteName);
+                if (cardSprite == null)
+                {
+                    Debug.LogWarning($"Could not find sprite: {cardData.cardSpriteName}");
+                    continue;
+                }
+                
+                // Create the card
+                Card newCard = Instantiate(cardPrefab, cardContainer.transform);
+                newCard.SetCardFrontSprite(cardSprite);
+                newCard.OnCardClicked += HandleCardSelection;
+                newCard.OnCardRevealed += HandleCardRevealed;
+                newCard.OnCardMatched += HandleCardMatched;
+                
+                // Restore position
+                newCard.transform.localPosition = cardData.GetPosition();
+                
+                // Restore card state using the new method
+                newCard.RestoreCardState(cardData.isFlipped, cardData.isMatched);
+                
+                allCards.Add(newCard);
+            }
+            
+            // Update matched pairs count
+            matchedPairsCount = 0;
+            foreach (Card card in allCards)
+            {
+                if (card.IsMatched)
+                {
+                    matchedPairsCount++;
+                }
+            }
+            matchedPairsCount /= 2; // Divide by 2 since we count pairs, not individual cards
+            
+            Debug.Log($"Board restored with {allCards.Count} cards, {matchedPairsCount} matched pairs");
+        }
+
+        private Sprite FindSpriteByName(string spriteName)
+        {
+            if (string.IsNullOrEmpty(spriteName))
+                return null;
+                
+            // Search in the available card sprites
+            foreach (Sprite sprite in boardConfiguration.availableCardSprites)
+            {
+                if (sprite != null && sprite.name == spriteName)
+                {
+                    return sprite;
+                }
+            }
+            
+            return null;
+        }
     }
 } 

@@ -148,6 +148,28 @@ namespace CardGame.Core.Gameplay
             SetCardToBack();
         }
 
+        public void RestoreCardState(bool isRevealed, bool isMatched)
+        {
+            this.isRevealed = isRevealed;
+            this.isMatched = isMatched;
+            
+            if (isMatched)
+            {
+                SetCardToFront();
+                isInteractable = false;
+            }
+            else if (isRevealed)
+            {
+                SetCardToFront();
+                isInteractable = true;
+            }
+            else
+            {
+                SetCardToBack();
+                isInteractable = true;
+            }
+        }
+
         public void OnPointerClick(PointerEventData eventData)
         {
             HandleCardClick();

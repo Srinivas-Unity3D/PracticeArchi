@@ -52,7 +52,6 @@ namespace CardGame.Core.UI
                 Debug.LogError("ScoreUI could not find a Canvas in its parent hierarchy!");
             }
 
-            // Find ScoreSystem in the scene
             scoreSystem = FindObjectOfType<ScoreManager>();
             
             if (scoreSystem == null)

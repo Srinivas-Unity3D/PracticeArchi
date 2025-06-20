@@ -17,7 +17,6 @@ namespace CardGame.Core.Gameplay
         private void Start()
         {
             currentStats = new GameStats();
-            // Dependency is injected by GameDependencyContainer, but this is a fallback.
             if (scoreSystem == null)
             {
                 scoreSystem = FindObjectOfType<ScoreManager>();
@@ -80,10 +79,29 @@ namespace CardGame.Core.Gameplay
             return PlayerPrefs.GetInt("HighScore", 0);
         }
 
-        // Dependency injection method
         public void SetScoreSystem(IScoreSystem scoreSystem)
         {
             this.scoreSystem = scoreSystem;
+        }
+
+        public void RestoreGameState(int savedMoves, int savedHighScore)
+        {
+            currentStats.Reset();
+            
+            for (int i = 0; i < savedMoves; i++)
+            {
+                currentStats.AddMove(true);
+            }
+            
+            if (savedHighScore > GetHighScore())
+            {
+                PlayerPrefs.SetInt("HighScore", savedHighScore);
+                PlayerPrefs.Save();
+            }
+            
+            OnGameStatsUpdated?.Invoke(currentStats);
+            
+            Debug.Log($"Stats restored: Moves={savedMoves}, HighScore={savedHighScore}");
         }
     }
 } 

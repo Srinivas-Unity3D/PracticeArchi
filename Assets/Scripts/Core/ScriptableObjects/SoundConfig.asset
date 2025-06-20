@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardFlip: {fileID: 8300000, guid: 1073c60885f6ad241b5cad5ef2756abd, type: 3}
   cardMatch: {fileID: 8300000, guid: 9cef9d730e843294bb38cad01099a905, type: 3}
-  cardMismatch: {fileID: 8300000, guid: 9cef9d730e843294bb38cad01099a905, type: 3}
+  cardMismatch: {fileID: 8300000, guid: e1e324d0c51252747a3525c1b5c05358, type: 3}
   gameOver: {fileID: 8300000, guid: bcee9b3b5ffca074c8197603532add17, type: 3}
   defaultVolume: 0.7

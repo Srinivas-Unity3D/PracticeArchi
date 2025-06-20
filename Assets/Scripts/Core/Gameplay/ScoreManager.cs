@@ -199,7 +199,6 @@ namespace CardGame.Core.Gameplay
                 AddScore(timeBonus, Vector3.zero);
             }
             
-            // Add completion bonus
             AddScore(scoringConfig.gameCompletionBonus, Vector3.zero);
         }
         
@@ -228,7 +227,6 @@ namespace CardGame.Core.Gameplay
             StartGame();
         }
         
-        // Public methods for external access
         public string GetScoreText()
         {
             return $"Score: {currentScore:N0}";
@@ -248,6 +246,27 @@ namespace CardGame.Core.Gameplay
         public void SetScoreUI(ScoreUI ui)
         {
             this.scoreUI = ui;
+        }
+
+        public void RestoreGameState(int savedScore, int savedCombo, float savedGameTime)
+        {
+            currentScore = savedScore;
+            totalScore = savedScore; 
+            currentCombo = savedCombo;
+            
+            gameStartTime = Time.time - savedGameTime;
+            
+            if (comboDecayCoroutine != null)
+            {
+                StopCoroutine(comboDecayCoroutine);
+                comboDecayCoroutine = null;
+            }
+            
+            OnScoreChanged?.Invoke(currentScore);
+            OnTotalScoreChanged?.Invoke(totalScore);
+            OnComboChanged?.Invoke(currentCombo);
+            
+            Debug.Log($"Score state restored: Score={currentScore}, Combo={currentCombo}, GameTime={savedGameTime}");
         }
     }
 } 
