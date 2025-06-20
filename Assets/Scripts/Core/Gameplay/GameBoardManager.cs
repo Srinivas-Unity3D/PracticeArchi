@@ -46,14 +46,12 @@ namespace CardGame.Core.Gameplay
         private bool isGameActive = true;
 
         [SerializeField] private BoardConfig boardConfig;
+        [SerializeField] private SelectedConfifuration selectedGrid;
 
-        public void StartGame()
-        {
-
-        }
 
         private void Start()
         {
+            boardConfig = selectedGrid.selectedGrid;
             InitializeDependencies();
             InitializeGame();
         }
@@ -556,6 +554,11 @@ namespace CardGame.Core.Gameplay
             }
 
             cardContainer.cellSize = new Vector2(cellSize, cellSize);
+        }
+
+        public void StartGame()
+        {
+            // not using currently
         }
     }
 } 
