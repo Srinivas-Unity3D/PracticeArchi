@@ -40,6 +40,11 @@ namespace CardGame.Core.Gameplay
             InitializeCard();
             soundManager = FindObjectOfType<SoundManager>();
         }
+
+        private void OnDestroy()
+        {
+            StopAllCoroutines();
+        }
         
         private void InitializeCard()
         {

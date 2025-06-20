@@ -2,6 +2,8 @@ using CardGame.Core.Data;
 using CardGame.Core.Gameplay;
 using CardGame.Core.Interfaces;
 using CardGame.Core.SaveLoad;
+using System.Collections;
+using TMPro;
 using UnityEngine;
 
 namespace CardGame.Core.Persistence
@@ -12,6 +14,8 @@ namespace CardGame.Core.Persistence
         private GameBoardManager gameBoardManager;
         private ScoreManager scoreManager;
         private GameStatsTracker statsTracker;
+
+        [SerializeField] private TextMeshProUGUI message;
 
         private void Awake()
         {
@@ -47,6 +51,7 @@ namespace CardGame.Core.Persistence
             };
 
             saveLoadSystem.SaveGame(gameData);
+            StartCoroutine(ToggleMessage(1f, "Game saved successfully!"));
             Debug.Log("Game saved successfully!");
         }
 
@@ -71,7 +76,7 @@ namespace CardGame.Core.Persistence
                 gameBoardManager.RestoreBoardState(loadedData.cardsOnBoard, loadedData.rows, loadedData.columns, loadedData.gridConstraintCount);
                 scoreManager.RestoreGameState(loadedData.currentScore, loadedData.currentCombo, loadedData.gameTime);
                 statsTracker.RestoreGameState(loadedData.moves, loadedData.highScore);
-                
+                StartCoroutine(ToggleMessage(1f, "Game loaded successfully!"));
                 Debug.Log("Game loaded successfully!");
             }
             catch (System.Exception e)
@@ -83,6 +88,14 @@ namespace CardGame.Core.Persistence
         public bool HasSaveData()
         {
             return saveLoadSystem.SaveExists();
+        }
+
+        IEnumerator ToggleMessage(float time,string msg) 
+        {
+            message.text = msg;
+            message.gameObject.SetActive(true);
+            yield return new WaitForSeconds(time);
+            message.gameObject.SetActive(false);
         }
     }
 } 
