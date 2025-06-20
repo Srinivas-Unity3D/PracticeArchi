@@ -48,6 +48,23 @@ namespace CardGame.Core.Gameplay
         [SerializeField] private BoardConfig boardConfig;
         [SerializeField] private SelectedConfifuration selectedGrid;
 
+        private GridLayoutGroup gridLayout;
+        private ContentSizeFitter contentFitter;
+
+        private void Awake()
+        {
+            if (cardContainer != null)
+            {
+                gridLayout = cardContainer.GetComponent<GridLayoutGroup>();
+                contentFitter = cardContainer.GetComponent<ContentSizeFitter>();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // Stop any coroutines that the board manager itself might be running.
+            StopAllCoroutines();
+        }
 
         private void Start()
         {
@@ -417,6 +434,11 @@ namespace CardGame.Core.Gameplay
             return boardConfig != null ? boardConfig.columns : 2;
         }
 
+        public string GetBoardConfigName()
+        {
+            return boardConfig != null ? boardConfig.name : string.Empty;
+        }
+
         public int GetConstraintCount()
         {
             if (cardContainer != null)
@@ -429,6 +451,12 @@ namespace CardGame.Core.Gameplay
             }
             
             return 2;
+        }
+
+        public void SetBoardConfig(BoardConfig config)
+        {
+            this.boardConfig = config;
+            InitializeBoardConfiguration(config);
         }
 
         public void RestoreBoardState(List<CardData> savedCardsData, int rows, int columns, int constraintCount)

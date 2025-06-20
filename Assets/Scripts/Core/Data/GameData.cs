@@ -33,6 +33,7 @@ namespace CardGame.Core.Data
     public class GameData
     {
         public List<CardData> cardsOnBoard;
+        public string boardConfigName;
         public int rows;
         public int columns;
         public int gridConstraintCount;
@@ -47,6 +48,7 @@ namespace CardGame.Core.Data
         {
            
             cardsOnBoard = new List<CardData>();
+            boardConfigName = "";
             rows = 0;
             columns = 0;
             gridConstraintCount = 0;

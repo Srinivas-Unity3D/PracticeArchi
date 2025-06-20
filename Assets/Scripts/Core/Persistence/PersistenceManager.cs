@@ -40,6 +40,7 @@ namespace CardGame.Core.Persistence
             var gameData = new GameData
             {
                 cardsOnBoard = gameBoardManager.GetCardsData(),
+                boardConfigName = gameBoardManager.GetBoardConfigName(),
                 rows = gameBoardManager.GetRows(),
                 columns = gameBoardManager.GetColumns(),
                 gridConstraintCount = gameBoardManager.GetConstraintCount(),
@@ -72,6 +73,15 @@ namespace CardGame.Core.Persistence
             try
             {
                 GameData loadedData = saveLoadSystem.LoadGame();
+
+                BoardConfig loadedConfig = FindBoardConfig(loadedData.boardConfigName);
+                if (loadedConfig == null)
+                {
+                    Debug.LogError($"Could not find BoardConfig named '{loadedData.boardConfigName}'. Load failed.");
+                    return;
+                }
+
+                gameBoardManager.SetBoardConfig(loadedConfig);
                 
                 gameBoardManager.RestoreBoardState(loadedData.cardsOnBoard, loadedData.rows, loadedData.columns, loadedData.gridConstraintCount);
                 scoreManager.RestoreGameState(loadedData.currentScore, loadedData.currentCombo, loadedData.gameTime);
@@ -83,6 +93,21 @@ namespace CardGame.Core.Persistence
             {
                 Debug.LogError($"Error loading game: {e.Message}");
             }
+        }
+
+        private BoardConfig FindBoardConfig(string configName)
+        {
+            if (string.IsNullOrEmpty(configName)) return null;
+
+            BoardConfig[] allConfigs = Resources.LoadAll<BoardConfig>("");
+            foreach (var config in allConfigs)
+            {
+                if (config.name == configName)
+                {
+                    return config;
+                }
+            }
+            return null;
         }
 
         public bool HasSaveData()

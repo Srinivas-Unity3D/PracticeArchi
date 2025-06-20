@@ -95,6 +95,12 @@ namespace CardGame.Core.Gameplay
         {
             yield return StartCoroutine(AnimateCardReveal());
             yield return new WaitForSeconds(1.5f);
+
+            if (this == null)
+            {
+                yield break;
+            }
+
             yield return StartCoroutine(AnimateCardHide());
         }
         
@@ -108,6 +114,9 @@ namespace CardGame.Core.Gameplay
             Tween.Rotation(transform, new Vector3(0f, 180f, 0f), flipAnimationDuration);
             
             yield return new WaitForSeconds(flipDelay);
+            
+            if (this == null) { yield break; }
+
             SetCardToFront();
             isRevealed = true;
             
@@ -119,6 +128,9 @@ namespace CardGame.Core.Gameplay
             Tween.Rotation(transform, new Vector3(0f, 0f, 0f), flipAnimationDuration);
             
             yield return new WaitForSeconds(flipDelay);
+
+            if (this == null) { yield break; }
+
             SetCardToBack();
             isRevealed = false;
             
