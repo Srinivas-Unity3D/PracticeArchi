@@ -229,7 +229,7 @@ namespace CardGame.Core.Gameplay
         public string GetComboText()
         {
             if (currentCombo <= 1) return "";
-            return $"Combo: {currentCombo}x{(int)currentComboMultiplier}";
+            return $"Combo: {currentCombo}x";
         }
         
         public string GetTotalScoreText()
