@@ -2337,7 +2337,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  scorePopupDuration: 1.5
+  scorePopupDuration: 1
   scorePopupOffset: {x: 0, y: 50}
   normalComboColor: {r: 1, g: 1, b: 1, a: 1}
   highComboColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -3310,7 +3310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: -428408208285928629, guid: 2003ca6286c82ce48811be2217203333, type: 3}
   cardContainer: {fileID: 1794967138}
-  boardConfig: {fileID: 11400000, guid: 2b242246814b1f3479a70a871a6887c4, type: 2}
+  boardConfig: {fileID: 11400000, guid: 9aa31174520c22d4b84719e8a69c475a, type: 2}
 --- !u!1 &1799673598
 GameObject:
   m_ObjectHideFlags: 0

@@ -74,6 +74,7 @@ namespace CardGame.Core.Gameplay
         private void InitializeGame()
         {
             InitializeBoardConfiguration(boardConfig);
+            UpdateGridLayout(boardConfig.rows, boardConfig.columns);
             PrepareCardSprites();
             CreateGameBoard();
             RandomizeCardPositions();
@@ -408,6 +409,16 @@ namespace CardGame.Core.Gameplay
             return data;
         }
 
+        public int GetRows()
+        {
+            return boardConfig != null ? boardConfig.rows : 2;
+        }
+
+        public int GetColumns()
+        {
+            return boardConfig != null ? boardConfig.columns : 2;
+        }
+
         public int GetConstraintCount()
         {
             if (cardContainer != null)
@@ -422,12 +433,19 @@ namespace CardGame.Core.Gameplay
             return 2;
         }
 
-        public void RestoreBoardState(List<CardData> savedCardsData, int constraintCount)
+        public void RestoreBoardState(List<CardData> savedCardsData, int rows, int columns, int constraintCount)
         {
             if (savedCardsData == null || savedCardsData.Count == 0)
             {
                 Debug.LogWarning("No saved card data to restore!");
                 return;
+            }
+
+            if (rows <= 0 || columns <= 0)
+            {
+                Debug.LogWarning("Loaded board dimensions are invalid. Falling back to current BoardConfig.");
+                rows = boardConfig.rows;
+                columns = boardConfig.columns;
             }
 
             ClearGameBoard();
@@ -436,6 +454,7 @@ namespace CardGame.Core.Gameplay
             {
                 cardContainer.enabled = true;
                 cardContainer.constraintCount = constraintCount;
+                UpdateGridLayout(rows, columns);
             }
             
             foreach (var cardData in savedCardsData)
@@ -494,6 +513,49 @@ namespace CardGame.Core.Gameplay
             }
             
             return null;
+        }
+
+        private void UpdateGridLayout(int rows, int cols)
+        {
+            if (cardContainer == null) return;
+            if (rows <= 0 || cols <= 0)
+            {
+                Debug.LogError($"Invalid layout configuration: Rows ({rows}) and Columns ({cols}) must be greater than 0.");
+                return;
+            }
+
+            var rectTransform = cardContainer.transform as RectTransform;
+            if (rectTransform == null) return;
+
+            float containerWidth = rectTransform.rect.width;
+            float containerHeight = rectTransform.rect.height;
+
+            float xPadding = cardContainer.padding.left + cardContainer.padding.right;
+            float yPadding = cardContainer.padding.top + cardContainer.padding.bottom;
+            float xSpacing = (cols - 1) * cardContainer.spacing.x;
+            float ySpacing = (rows - 1) * cardContainer.spacing.y;
+
+            float availableWidth = containerWidth - xPadding - xSpacing;
+            float availableHeight = containerHeight - yPadding - ySpacing;
+            
+            if (availableWidth <= 0 || availableHeight <= 0)
+            {
+                cardContainer.cellSize = Vector2.zero;
+                Debug.LogWarning("Container size is too small for the specified padding and spacing. Cell size set to zero.");
+                return;
+            }
+
+            float cellWidth = availableWidth / cols;
+            float cellHeight = availableHeight / rows;
+
+            float cellSize = Mathf.Min(cellWidth, cellHeight);
+
+            if (cellSize < 0)
+            {
+                cellSize = 0;
+            }
+
+            cardContainer.cellSize = new Vector2(cellSize, cellSize);
         }
     }
 } 
