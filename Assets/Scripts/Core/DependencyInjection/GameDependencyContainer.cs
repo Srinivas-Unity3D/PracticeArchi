@@ -1,5 +1,6 @@
 using CardGame.Core.Interfaces;
 using CardGame.Core.Gameplay;
+using CardGame.Core.Audio;
 using UnityEngine;
 using CardGame.Core.UI;
 
@@ -11,6 +12,7 @@ namespace CardGame.Core.DependencyInjection
         [SerializeField] private ScoreManager scoreManager;
         [SerializeField] private GameStatsTracker statsTracker;
         [SerializeField] private GameBoardManager gameBoardManager;
+        [SerializeField] private SoundManager soundManager;
         
         [Header("UI Components")]
         [SerializeField] private ScoreUI scoreUI;
@@ -46,6 +48,11 @@ namespace CardGame.Core.DependencyInjection
             if (gameStatsUI == null)
             {
                 gameStatsUI = FindObjectOfType<GameStatsUI>();
+            }
+            
+            if (soundManager == null)
+            {
+                soundManager = FindObjectOfType<SoundManager>();
             }
             
             InjectDependencies();
