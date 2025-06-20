@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace CardGame.Core.Interfaces
 {
@@ -21,8 +22,8 @@ namespace CardGame.Core.Interfaces
       
         void StartGame();
         void EndGame();
-        void OnSuccessfulMatch();
-        void OnFailedMatch();
+        void OnSuccessfulMatch(Vector3 matchPosition);
+        void OnFailedMatch(Vector3 failPosition);
         void RestartGame();
         
         string GetScoreText();

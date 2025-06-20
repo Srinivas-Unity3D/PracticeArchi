@@ -1,4 +1,6 @@
 using CardGame.Core.Data;
+using CardGame.Core.Interfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,15 +17,25 @@ namespace CardGame.Core.Gameplay
         public int gridLayoutColumn;
     }
 
-    public class GameBoardManager : MonoBehaviour
+    public class GameBoardManager : MonoBehaviour, IGameBoard
     {
         [Header("Card Setup")]
         [SerializeField] private Card cardPrefab;
         [SerializeField] private GridLayoutGroup cardContainer;
         
-        private BoardConfiguration boardConfiguration;
-       
+        [Header("Dependencies")]
+        [SerializeField] private IScoreSystem scoreSystem;
+        [SerializeField] private IGameStatsTracker statsTracker;
         
+        public event Action OnGameStarted;
+        public event Action OnGameCompleted;
+        public event Action<bool> OnMatchAttempted;
+        
+        public bool IsGameActive => isGameActive;
+        public int MatchedPairsCount => matchedPairsCount;
+        public int TotalPairs => allCards.Count / 2;
+        
+        private BoardConfiguration boardConfiguration;
         private List<Card> allCards = new List<Card>();
         private List<Sprite> cardSpritePairs = new List<Sprite>();
         private Card firstSelectedCard;
@@ -33,9 +45,28 @@ namespace CardGame.Core.Gameplay
 
         [SerializeField] private BoardConfig boardConfig;
 
+        public void StartGame()
+        {
+
+        }
+
         private void Start()
         {
+            InitializeDependencies();
             InitializeGame();
+        }
+        
+        private void InitializeDependencies()
+        {
+            if (scoreSystem == null)
+            {
+                scoreSystem = FindObjectOfType<ScoreManager>();
+            }
+            
+            if (statsTracker == null)
+            {
+                statsTracker = FindObjectOfType<GameStatsTracker>();
+            }
         }
         
         private void InitializeGame()
@@ -45,8 +76,19 @@ namespace CardGame.Core.Gameplay
             CreateGameBoard();
             RandomizeCardPositions();
             StartCoroutine(ShowAllCardsBriefly());
+            
+            if (scoreSystem != null)
+            {
+                scoreSystem.StartGame();
+            }
+            
+            if (statsTracker != null)
+            {
+                statsTracker.StartNewGame();
+            }
+            
+            OnGameStarted?.Invoke();
         }
-
 
         private void InitializeBoardConfiguration(BoardConfig boardConfig) 
         {
@@ -79,7 +121,7 @@ namespace CardGame.Core.Gameplay
         {
             for (int i = cardSpritePairs.Count - 1; i > 0; i--)
             {
-                int randomIndex = Random.Range(0, i + 1);
+                int randomIndex = UnityEngine.Random.Range(0, i + 1);
                 Sprite temp = cardSpritePairs[i];
                 cardSpritePairs[i] = cardSpritePairs[randomIndex];
                 cardSpritePairs[randomIndex] = temp;
@@ -140,7 +182,7 @@ namespace CardGame.Core.Gameplay
         {
             for (int i = positions.Count - 1; i > 0; i--)
             {
-                int randomIndex = Random.Range(0, i + 1);
+                int randomIndex = UnityEngine.Random.Range(0, i + 1);
                 Vector3 temp = positions[i];
                 positions[i] = positions[randomIndex];
                 positions[randomIndex] = temp;
@@ -224,6 +266,19 @@ namespace CardGame.Core.Gameplay
             matchedPairsCount++;
             boardConfig.OnMatchFound?.Invoke(matchedPairsCount);
             
+            if (scoreSystem != null)
+            {
+                Vector3 midPoint = (firstSelectedCard.transform.position + secondSelectedCard.transform.position) / 2f;
+                scoreSystem.OnSuccessfulMatch(midPoint);
+            }
+            
+            if (statsTracker != null)
+            {
+                statsTracker.RecordMove(true);
+            }
+            
+            OnMatchAttempted?.Invoke(true);
+            
             if (matchedPairsCount >= allCards.Count / 2)
             {
                 HandleGameCompletion();
@@ -234,21 +289,44 @@ namespace CardGame.Core.Gameplay
         {
             firstSelectedCard.HideCard();
             secondSelectedCard.HideCard();
+            
+            if (scoreSystem != null)
+            {
+                Vector3 midPoint = (firstSelectedCard.transform.position + secondSelectedCard.transform.position) / 2f;
+                scoreSystem.OnFailedMatch(midPoint);
+            }
+            
+            if (statsTracker != null)
+            {
+                statsTracker.RecordMove(false);
+            }
+            
+            OnMatchAttempted?.Invoke(false);
         }
         
         private void HandleGameCompletion()
         {
             isGameActive = false;
             
+            if (scoreSystem != null)
+            {
+                scoreSystem.EndGame();
+            }
+            
+            if (statsTracker != null)
+            {
+                statsTracker.CompleteGame();
+                statsTracker.SaveHighScore();
+            }
+            
             PrimeTween.Sequence.Create()
                 .Chain(PrimeTween.Tween.Scale(cardContainer.transform, Vector3.one * 1.2f, 0.2f, ease: PrimeTween.Ease.OutBack))
                 .Chain(PrimeTween.Tween.Scale(cardContainer.transform, Vector3.one, 0.1f));
 
             boardConfig.OnGameCompleted?.Invoke();
+            OnGameCompleted?.Invoke();
             Debug.Log("Game Completed! All pairs matched!");
         }
-        
-       
         
         private void SetAllCardsInteractable(bool interactable)
         {
@@ -263,7 +341,26 @@ namespace CardGame.Core.Gameplay
             ClearGameBoard();
             matchedPairsCount = 0;
             isGameActive = true;
+            
+            if (scoreSystem != null)
+            {
+                scoreSystem.RestartGame();
+            }
+            
+            if (statsTracker != null)
+            {
+                statsTracker.StartNewGame();
+            }
+            
             InitializeGame();
+        }
+        
+        public void EndGame()
+        {
+            if (isGameActive)
+            {
+                HandleGameCompletion();
+            }
         }
         
         private void ClearGameBoard()
@@ -278,5 +375,17 @@ namespace CardGame.Core.Gameplay
             allCards.Clear();
             cardSpritePairs.Clear();
         }
+        
+        public void SetScoreSystem(IScoreSystem scoreSystem)
+        {
+            this.scoreSystem = scoreSystem;
+        }
+        
+        public void SetStatsTracker(IGameStatsTracker statsTracker)
+        {
+            this.statsTracker = statsTracker;
+        }
+
+       
     }
 } 

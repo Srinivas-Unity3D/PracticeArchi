@@ -3,6 +3,7 @@ using CardGame.Core.Interfaces;
 using System;
 using System.Collections;
 using UnityEngine;
+using CardGame.Core.UI;
 
 namespace CardGame.Core.Gameplay
 {
@@ -10,6 +11,8 @@ namespace CardGame.Core.Gameplay
     {
         [Header("Configuration")]
         [SerializeField] private ScoringConfig scoringConfig;
+        
+        private ScoreUI scoreUI;
         
         public event Action<int> OnScoreChanged;
         public event Action<int> OnComboChanged;
@@ -62,7 +65,7 @@ namespace CardGame.Core.Gameplay
             CalculateFinalScore();
         }
         
-        public void OnSuccessfulMatch()
+        public void OnSuccessfulMatch(Vector3 matchPosition)
         {
             if (!isGameActive) return;
             
@@ -81,18 +84,18 @@ namespace CardGame.Core.Gameplay
             }
             
             int matchScore = CalculateMatchScore();
-            AddScore(matchScore);
+            AddScore(matchScore, matchPosition);
             
             StartComboDecayTimer();
         }
         
-        public void OnFailedMatch()
+        public void OnFailedMatch(Vector3 failPosition)
         {
             if (!isGameActive) return;
             
             if (scoringConfig.applyFailedMatchPenalty)
             {
-                AddScore(scoringConfig.failedMatchPenalty);
+                AddScore(scoringConfig.failedMatchPenalty, failPosition);
             }
             
             BreakCombo();
@@ -169,10 +172,15 @@ namespace CardGame.Core.Gameplay
             return baseScore + comboBonus;
         }
         
-        private void AddScore(int scoreToAdd)
+        private void AddScore(int scoreToAdd, Vector3 position)
         {
             currentScore += scoreToAdd;
             totalScore += scoreToAdd;
+            
+            if (scoreUI != null)
+            {
+                scoreUI.ShowScorePopup(scoreToAdd, position);
+            }
             
             OnScoreChanged?.Invoke(currentScore);
             OnTotalScoreChanged?.Invoke(totalScore);
@@ -188,11 +196,11 @@ namespace CardGame.Core.Gameplay
             
             if (timeBonus > 0)
             {
-                AddScore(timeBonus);
+                AddScore(timeBonus, Vector3.zero);
             }
             
             // Add completion bonus
-            AddScore(scoringConfig.gameCompletionBonus);
+            AddScore(scoringConfig.gameCompletionBonus, Vector3.zero);
         }
         
         private void ResetScore()
@@ -235,6 +243,11 @@ namespace CardGame.Core.Gameplay
         public string GetTotalScoreText()
         {
             return $"Total: {totalScore:N0}";
+        }
+
+        public void SetScoreUI(ScoreUI ui)
+        {
+            this.scoreUI = ui;
         }
     }
 } 
